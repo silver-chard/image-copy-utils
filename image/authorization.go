@@ -27,13 +27,13 @@ func GenAuthenticator(input string) (authn.Authenticator, error) {
 
 	// Case 2: 形如 user:password
 	if strings.Contains(input, ":") && !strings.HasPrefix(input, "{") {
-		return genBasicUserPassword(input)
+		return GenBasicUserPassword(input)
 	}
 
 	// Case 3: 可能是 JSON 文件路径（Docker config 或 GCP key）
 	if _, err := os.Stat(input); err == nil {
 		absPath, _ := filepath.Abs(input)
-		return genGSAAuthenticatorFromFile(absPath)
+		return GenGSAAuthenticatorFromFile(absPath)
 	}
 
 	// Case 4: 直接传入 Google serviceAccount JSON 内容
@@ -48,7 +48,7 @@ func GenAuthenticator(input string) (authn.Authenticator, error) {
 	return nil, errors.New("not support authenticator type, please use user@password format or google cloud service account json file path")
 }
 
-func genBasicUserPassword(authMeta string) (authn.Authenticator, error) {
+func GenBasicUserPassword(authMeta string) (authn.Authenticator, error) {
 	authInfo := basicAuthPassword{}
 	err := json.Unmarshal([]byte(authMeta), &authInfo)
 	if err != nil {
@@ -57,7 +57,7 @@ func genBasicUserPassword(authMeta string) (authn.Authenticator, error) {
 	return &authn.Basic{Username: authInfo.Username, Password: authInfo.Password}, nil
 }
 
-func genGSAAuthenticatorFromFile(authFilePath string) (authn.Authenticator, error) {
+func GenGSAAuthenticatorFromFile(authFilePath string) (authn.Authenticator, error) {
 	authFile, err := os.Open(authFilePath)
 	if err != nil {
 		return nil, err
@@ -67,4 +67,8 @@ func genGSAAuthenticatorFromFile(authFilePath string) (authn.Authenticator, erro
 		return nil, err
 	}
 	return ggoogle.NewJSONKeyAuthenticator(string(authContent)), nil
+}
+
+func GenGSAAuthenticatorFromJSON(authJSON string) (authn.Authenticator, error) {
+	return ggoogle.NewJSONKeyAuthenticator(authJSON), nil
 }

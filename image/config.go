@@ -30,10 +30,10 @@ func SetSrcImageAuth(auth authn.Authenticator) Option {
 func SetDstImageAuth(auth authn.Authenticator) Option {
 	return func(o *options) { o.dstImageAuth = auth }
 }
-func SetSrcRounderTripper(tripper http.RoundTripper) Option {
+func SetSrcRoundTripper(tripper http.RoundTripper) Option {
 	return func(o *options) { o.srcRounderTripper = tripper }
 }
-func SetDstRounderTripper(tripper http.RoundTripper) Option {
+func SetDstRoundTripper(tripper http.RoundTripper) Option {
 	return func(o *options) { o.dstRounderTripper = tripper }
 }
 

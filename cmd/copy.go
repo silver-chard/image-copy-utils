@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -53,11 +54,19 @@ var copyCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("generate dst auth failed: %w", err)
 		}
-		srcStats, srcDialer, err := image.GenHTTPStatRounderTripper(srcProxy)
+		srcTransport, err := image.WarpProxy(http.DefaultTransport.(*http.Transport).Clone(), srcProxy)
+		if err != nil {
+			return fmt.Errorf("warp src proxy failed: %w", err)
+		}
+		srcStats, srcDialer, err := image.GenHTTPStatRounderTripper(srcTransport)
 		if err != nil {
 			return fmt.Errorf("generate src dialer failed: %w", err)
 		}
-		dstStats, dstDialer, err := image.GenHTTPStatRounderTripper(dstProxy)
+		dstTransport, err := image.WarpProxy(http.DefaultTransport.(*http.Transport).Clone(), dstProxy)
+		if err != nil {
+			return fmt.Errorf("warp dst proxy failed: %w", err)
+		}
+		dstStats, dstDialer, err := image.GenHTTPStatRounderTripper(dstTransport)
 		if err != nil {
 			return fmt.Errorf("generate dst dialer failed: %w", err)
 		}

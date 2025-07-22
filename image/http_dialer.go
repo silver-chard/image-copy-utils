@@ -59,13 +59,8 @@ func (c *statisticConn) Write(b []byte) (n int, err error) {
 	}
 	return n, err
 }
-func GenHTTPStatRounderTripper(proxy string) (*Statistic, http.RoundTripper, error) {
+func GenHTTPStatRounderTripper(tripper *http.Transport) (*Statistic, http.RoundTripper, error) {
 	stats := newStatistic()
-	tripper, err := warpProxy(http.DefaultTransport.(*http.Transport).Clone(), proxy)
-	if err != nil {
-		return nil, nil, fmt.Errorf("warp proxy error: %w", err)
-	}
-
 	tripper.DialContext = warpStatisticRounderTripper(tripper.DialContext, stats)
 	return stats, tripper, nil
 }
@@ -87,7 +82,7 @@ func warpStatisticRounderTripper(
 	}
 }
 
-func warpProxy(tripper *http.Transport, proxy string) (*http.Transport, error) {
+func WarpProxy(tripper *http.Transport, proxy string) (*http.Transport, error) {
 	if len(proxy) == 0 {
 		return tripper, nil
 	}
